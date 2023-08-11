@@ -1,0 +1,13 @@
+{% extends 'cinema_app/base.html' %}
+
+{% block content %}
+
+
+
+    {% for movie in movies %}
+        <a href="{{movie.get_absolute_url}}">{{ movie.movie_name }} </a>
+        <img src="{{movie.image.url}}" alt="{{ movie.movie_name }}">
+        <hr/>
+    {% endfor %}
+
+{% endblock %}

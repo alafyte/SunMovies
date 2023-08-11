@@ -1,0 +1,17 @@
+{% extends 'cinema_app/base.html' %}
+
+{% block content %}
+    <img src="{{ movie.image.url }}" alt="{{ movie.movie_name }}">
+    <p>{{ movie.date_start }} - {{ movie.date_end }}</p>
+    <p>{{ movie.age_rating }}</p>
+    <p>{{ movie.duration }} мин.</p>
+    <p>{{ movie.genre }}</p>
+    <p>{{ movie.description }}</p>
+    <video width="500px" src="{{ movie.trailer.url }}" controls></video>
+    <br/>
+
+    {% for movie_session in movie_sessions %}
+    <a style="display: block" href="{{ movie_session.get_absolute_url }}">{{ movie_session }}</a>
+    {% endfor %}
+
+{% endblock %}

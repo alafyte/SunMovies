@@ -1,0 +1,35 @@
+{% extends 'cinema_app/base.html' %}
+{% load static %}
+
+{% block content %}
+    {{ session }}
+    <br/>
+    <form method="post" action="{% url 'order' %}">
+        {% csrf_token %}
+        {% for ticket in tickets %}
+            {% if ticket.ticket_seat.seat == 1 %}
+                <br/>ряд:{{ ticket.ticket_seat.row }}:
+            {% endif %}
+            {% if ticket.ordered %}
+                <label style="display: flex; justify-content: center; align-items: center; background-color: gray;
+        border-radius: 20px; width: 50px; height: 50px; cursor: pointer">
+                    {{ ticket.ticket_seat.seat }}
+                    <input type="checkbox" name="ticket{{ ticket.id }}"
+                           value="{{ ticket.id }}" disabled/>
+                </label>
+            {% else %}
+                <label style="display: flex; justify-content: center; align-items: center; background-color: beige;
+        border-radius: 20px; width: 50px; height: 50px; cursor: pointer">
+                    {{ ticket.ticket_seat.seat }}
+                    <input type="checkbox" name="ticket{{ ticket.id }}"
+                           value="{{ ticket.id }}"/>
+                </label>
+            {% endif %}
+        {% endfor %}
+        <button type="submit">Купить билеты</button>
+    </form>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src="{% static 'cinema_app/js/create_tickets.js' %}"></script>
+{% endblock %}
