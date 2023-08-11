@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.forms import forms
 from django.urls import reverse
+from django.utils import timezone
 
 
 # Create your models here.
@@ -47,7 +48,7 @@ class Genre(models.Model):
 
 class Session(models.Model):
     date_session = models.DateField(verbose_name="Дата сеанса")
-    movie = models.ForeignKey(Movie, related_name="movie", verbose_name="Фильм", on_delete=models.PROTECT)
+    movie = models.ForeignKey(Movie, related_name="movie", verbose_name="Фильм", on_delete=models.CASCADE)
     schedule = models.ForeignKey("Schedule", related_name="session_schedule", verbose_name="Расписание",
                                  on_delete=models.PROTECT)
 
@@ -60,6 +61,16 @@ class Session(models.Model):
                 "%d/%m/%Y") + " и " + self.movie.date_end.strftime("%d/%m/%Y"))
         if Session.objects.filter(date_session=self.date_session, schedule=self.schedule).count() > 0:
             raise forms.ValidationError("Зал уже занят на эту дату другим сеансом")
+
+    def get_absolute_url(self):
+        return reverse('session', kwargs={'session_pk': self.id})
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if self.id is None:
+            for seat in Seat.objects.filter(hall=self.schedule.hall):
+                Ticket.objects.create(session=self, ticket_seat=seat)
 
     class Meta:
         verbose_name = "Сеанс"
@@ -108,20 +119,21 @@ class Category(models.Model):
 
 
 class Ticket(models.Model):
-    order = models.ForeignKey("Order", related_name="order", verbose_name="Заказ", on_delete=models.PROTECT, null=True,
-                              default=None)
-    session = models.ForeignKey("Session", related_name="session", verbose_name="Сеанс", on_delete=models.PROTECT)
-    ticket_seat = models.ForeignKey("Seat", related_name="ticket_seat", verbose_name="Место", on_delete=models.PROTECT)
+    date_of_order = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, related_name="user", verbose_name="Пользователь", on_delete=models.CASCADE,
+                             null=True, blank=True)
+    session = models.ForeignKey("Session", related_name="session", verbose_name="Сеанс", on_delete=models.CASCADE)
+    ticket_seat = models.ForeignKey("Seat", related_name="ticket_seat", verbose_name="Место", on_delete=models.CASCADE)
+    ordered = models.BooleanField(default=False, verbose_name="Заказан")
 
-
-class Order(models.Model):
-    date_of_order = models.DateField(auto_now_add=True)
-    user = models.ForeignKey(User, related_name="user", verbose_name="Пользователь", on_delete=models.PROTECT)
+    def save(self, *args, **kwargs):
+        self.date_of_order = timezone.localtime()
+        return super(Ticket, self).save(*args, **kwargs)
 
 
 class Schedule(models.Model):
     time = models.TimeField(verbose_name="Время")
-    hall = models.ForeignKey(Hall, related_name="schedule_hall", verbose_name="Зал", on_delete=models.PROTECT)
+    hall = models.ForeignKey(Hall, related_name="schedule_hall", verbose_name="Зал", on_delete=models.CASCADE)
 
     def __str__(self):
         return self.hall.__str__() + " " + self.time.strftime("%H:%M")
