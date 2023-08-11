@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.forms import forms
 from django.urls import reverse
 
 
@@ -18,6 +19,10 @@ class Movie(models.Model):
 
     def __str__(self):
         return self.movie_name
+
+    def clean(self):
+        if self.date_start > self.date_end:
+            raise forms.ValidationError("Некорректный промежуток")
 
     def get_absolute_url(self):
         return reverse('movie', kwargs={'movie_slug': self.slug})
@@ -42,20 +47,28 @@ class Genre(models.Model):
 
 class Session(models.Model):
     date_session = models.DateField(verbose_name="Дата сеанса")
-    time_session = models.TimeField(verbose_name="Время сеанса")
     movie = models.ForeignKey(Movie, related_name="movie", verbose_name="Фильм", on_delete=models.PROTECT)
+    schedule = models.ForeignKey("Schedule", related_name="session_schedule", verbose_name="Расписание",
+                                 on_delete=models.PROTECT)
 
     def __str__(self):
-        return self.date_session.__str__() + " " + self.time_session.__str__()
+        return self.date_session.strftime("%d/%m/%Y") + " " + self.schedule.__str__() + " " + self.movie.__str__()
+
+    def clean(self):
+        if self.date_session > self.movie.date_end or self.date_session < self.movie.date_start:
+            raise forms.ValidationError("Дата сеанса должна быть между " + self.movie.date_start.strftime(
+                "%d/%m/%Y") + " и " + self.movie.date_end.strftime("%d/%m/%Y"))
+        if Session.objects.filter(date_session=self.date_session, schedule=self.schedule).count() > 0:
+            raise forms.ValidationError("Зал уже занят на эту дату другим сеансом")
 
     class Meta:
         verbose_name = "Сеанс"
         verbose_name_plural = "Сеансы"
-        ordering = ("date_session", "time_session")
+        ordering = ("date_session", "schedule")
 
 
 class Seat(models.Model):
-    hall = models.ForeignKey("Hall", related_name="hall", on_delete=models.PROTECT)
+    hall = models.ForeignKey("Hall", related_name="seats_in_hall", on_delete=models.PROTECT)
     row = models.PositiveIntegerField(verbose_name="Ряд")
     seat = models.PositiveIntegerField(verbose_name="Место")
     category = models.ForeignKey("Category", related_name="category", on_delete=models.PROTECT)
@@ -99,9 +112,21 @@ class Ticket(models.Model):
                               default=None)
     session = models.ForeignKey("Session", related_name="session", verbose_name="Сеанс", on_delete=models.PROTECT)
     ticket_seat = models.ForeignKey("Seat", related_name="ticket_seat", verbose_name="Место", on_delete=models.PROTECT)
-    sold = models.BooleanField(default=False)
 
 
 class Order(models.Model):
     date_of_order = models.DateField(auto_now_add=True)
     user = models.ForeignKey(User, related_name="user", verbose_name="Пользователь", on_delete=models.PROTECT)
+
+
+class Schedule(models.Model):
+    time = models.TimeField(verbose_name="Время")
+    hall = models.ForeignKey(Hall, related_name="schedule_hall", verbose_name="Зал", on_delete=models.PROTECT)
+
+    def __str__(self):
+        return self.hall.__str__() + " " + self.time.strftime("%H:%M")
+
+    class Meta:
+        verbose_name = "Расписание"
+        verbose_name_plural = "Расписание"
+        ordering = ("hall", "time")
