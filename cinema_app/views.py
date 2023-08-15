@@ -1,12 +1,7 @@
-from django.contrib.auth import logout, login
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import LoginView
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
-from django.urls import reverse_lazy
+from django.shortcuts import redirect
 from django.views import View
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView
 
 from cinema_app.models import *
 
@@ -55,28 +50,4 @@ class CreateOrderView(View):
             ticket.ordered = True
             ticket.user = request.user
             ticket.save()
-        return HttpResponseRedirect(reverse('home'))
-
-
-def logout_view(request):
-    logout(request)
-    return HttpResponseRedirect(reverse('login'))
-
-
-class UserLoginView(LoginView):
-    form_class = AuthenticationForm
-    template_name = 'cinema_app/login.html'
-
-    def get_success_url(self):
-        return reverse_lazy('home')
-
-
-class RegisterUserView(CreateView):
-    form_class = UserCreationForm
-    template_name = 'cinema_app/register.html'
-    success_url = reverse_lazy('home')
-
-    def form_valid(self, form):
-        user = form.save()
-        login(self.request, user)
-        return HttpResponseRedirect(self.success_url)
+        return redirect(reverse('home'))

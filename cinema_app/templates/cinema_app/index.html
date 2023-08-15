@@ -1,13 +1,24 @@
-{% extends 'cinema_app/base.html' %}
+{% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 
+    <h2 class="mb-6 text-4xl font-bold sm:text-3xl dark:text-white text-center">Афиша</h2>
 
-
-    {% for movie in movies %}
-        <a href="{{movie.get_absolute_url}}">{{ movie.movie_name }} </a>
-        <img src="{{movie.image.url}}" alt="{{ movie.movie_name }}">
-        <hr/>
-    {% endfor %}
-
+    <div class="grid md:grid-cols-3 lg:grid-cols-5 gap-5 ml-8 mr-8">
+        {% for movie in movies %}
+            <div class="bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+                <a href="{{ movie.get_absolute_url }}">
+                    <img style="width: 100%" class="rounded-t-lg" src="{{ movie.image.url }}" alt="{{ movie.movie_name }}"/>
+                </a>
+                <div class="p-5">
+                    <a href="{{ movie.get_absolute_url }}">
+                        <h5 class="mb-2 text-lg font-bold text-center tracking-tight text-gray-900 dark:text-white">
+                            {{ movie.movie_name }}
+                        </h5>
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}

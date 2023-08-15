@@ -1,4 +1,4 @@
-{% extends 'cinema_app/base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 
 {% block content %}
@@ -28,8 +28,4 @@
         {% endfor %}
         <button type="submit">Купить билеты</button>
     </form>
-{% endblock %}
-
-{% block scripts %}
-    <script type="text/javascript" src="{% static 'cinema_app/js/create_tickets.js' %}"></script>
 {% endblock %}
