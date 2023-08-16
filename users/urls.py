@@ -8,7 +8,7 @@ urlpatterns = [
     path('login/', UserLoginView.as_view(), name="login"),
     path('logout/', logout_view, name="logout"),
     path('register/', RegisterUserView.as_view(), name="register"),
-    path('activate/<uidb64>/<token>', activate, name='activate')
+    path('activate/<uidb64>/<token>', activation_view, name='activate'),
 ]
 
 if settings.DEBUG:

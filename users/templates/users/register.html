@@ -1,9 +1,24 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-    <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-        <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+ {% if error_message %}
+    <div class="px-6">
+        <div class="flex md:mt-10 mt-4 items-center p-4 mb-0 text-sm text-red-800 sm:max-w-md
+                mx-auto border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800"
+             role="alert">
+            <svg class="flex-shrink-0 inline w-4 h-4 mr-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                 fill="red" viewBox="0 0 20 20">
+                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"></path>
+            </svg>
+            <span class="sr-only">Danger</span>
+            <div>
+                {{ error_message }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:mt-14 mt-0 lg:py-0">
+        <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-xl xl:p-0 dark:bg-gray-800 dark:border-gray-700">
             <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
                 <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                     Регистрация
@@ -11,14 +26,16 @@
                 <div class="dark:text-red-500 text-red-600 mt-2 text-sm">{{ form.non_field_errors }}</div>
                 <form method="post" class="space-y-4 md:space-y-6">
                     {% csrf_token %}
-                    {% for field in form %}
-                        <div>
-                            <label for="{{ field.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900
+                    <div class="grid md:grid-cols-2 md:gap-6">
+                        {% for field in form %}
+                            <div>
+                                <label for="{{ field.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-900
                          dark:text-white">{{ field.label }}</label>
-                            {{ field }}
-                         <div class="mt-2 text-sm text-red-600 dark:text-red-500">{{ field.errors }}</div>
-                        </div>
-                    {% endfor %}
+                                {{ field }}
+                                <div class="mt-2 text-sm text-red-600 dark:text-red-500">{{ field.errors }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
                     <div class="flex items-start">
                         <div class="flex items-center h-5">
                             <input id="terms" aria-describedby="terms" type="checkbox"
@@ -27,7 +44,7 @@
                                    dark:ring-offset-gray-800 mr-3"
                                    required="">
                         </div>
-                        <div class="ml-3 text-sm">
+                        <div class="ml-1 text-sm">
                             <label for="terms" class="font-light text-gray-500 dark:text-gray-300">
                                 Я принимаю условия <a
                                     class="font-medium text-blue-600 hover:underline dark:text-blue-500" href="#">
@@ -41,7 +58,7 @@
                             dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                         Создать аккаунт
                     </button>
-                    <p class="text-sm font-light text-gray-500 dark:text-gray-400">
+                    <p class="text-sm text-center font-light text-gray-500 dark:text-gray-400">
                         Уже есть аккаунт?
                         <a href="{% url 'login' %}"
                            class="font-medium text-blue-600 hover:underline dark:text-blue-500">
