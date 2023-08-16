@@ -1,4 +1,5 @@
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth import password_validation
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordResetForm, SetPasswordForm
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -28,3 +29,21 @@ class RegisterUserForm(UserCreationForm):
 class LoginUserForm(AuthenticationForm):
     username = forms.CharField(label="Логин или e-mail", widget=forms.TextInput(attrs={'class': input_style}))
     password = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': input_style}))
+
+
+class PasswordResetEmailForm(PasswordResetForm):
+    email = forms.EmailField(label="Email", widget=forms.EmailInput(attrs={'class': input_style}))
+
+
+class SetNewPasswordForm(SetPasswordForm):
+    new_password1 = forms.CharField(
+        label="Новый пароль",
+        widget=forms.PasswordInput(attrs={"class": input_style}),
+        strip=False,
+        help_text=password_validation.password_validators_help_text_html(),
+    )
+    new_password2 = forms.CharField(
+        label="Повторите пароль",
+        strip=False,
+        widget=forms.PasswordInput(attrs={"class": input_style}),
+    )
