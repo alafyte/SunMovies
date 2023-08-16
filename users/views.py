@@ -67,9 +67,9 @@ def activation_view(request, uidb64, token):
 
 
 def activate_email(request, user, to_email):
-    mail_subject = "Activate your user account."
+    mail_subject = "Активация аккаунта."
     message = render_to_string("users/template_activate_account.html", {
-        'user': user.username,
+        'username': user.username,
         'domain': get_current_site(request).domain,
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': account_activation_token.make_token(user),
