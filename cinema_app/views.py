@@ -4,16 +4,19 @@ from django.views import View
 from django.views.generic import ListView, DetailView
 
 from cinema_app.models import *
+from cinema_app.utils import DataContextMixin
 
 
 # Create your views here.
-class HomeView(ListView):
+class HomeView(DataContextMixin, ListView):
     model = Movie
     template_name = 'cinema_app/index.html'
     context_object_name = "movies"
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
+        user_context = self.get_user_context(title="Главная", menu_tab_selected=1)
+        context = dict(list(context.items()) + list(user_context.items()))
         return context
 
 
