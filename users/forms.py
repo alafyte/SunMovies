@@ -1,5 +1,6 @@
 from django.contrib.auth import password_validation
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordResetForm, SetPasswordForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordResetForm, SetPasswordForm, \
+    UserChangeForm, PasswordChangeForm
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -36,6 +37,41 @@ class PasswordResetEmailForm(PasswordResetForm):
 
 
 class SetNewPasswordForm(SetPasswordForm):
+    new_password1 = forms.CharField(
+        label="Новый пароль",
+        widget=forms.PasswordInput(attrs={"class": input_style}),
+        strip=False,
+        help_text=password_validation.password_validators_help_text_html(),
+    )
+    new_password2 = forms.CharField(
+        label="Повторите пароль",
+        strip=False,
+        widget=forms.PasswordInput(attrs={"class": input_style}),
+    )
+
+
+class ProfileChangeForm(UserChangeForm):
+    username = forms.CharField(label="Логин", max_length=100, widget=forms.TextInput(attrs={'class': input_style}))
+    email = forms.EmailField(label="Email", disabled=True, widget=forms.EmailInput(attrs={'class': input_style}))
+    last_login = forms.DateTimeField(label="Последний вход", disabled=True,
+                                     widget=forms.DateTimeInput(attrs={'class': input_style}))
+    date_joined = forms.DateTimeField(label="Дата создания профиля", disabled=True,
+                                      widget=forms.DateTimeInput(attrs={'class': input_style}))
+    password = None
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'last_login', 'date_joined')
+
+
+class UserPasswordChangeForm(PasswordChangeForm):
+    old_password = forms.CharField(
+        label="Старый пароль",
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={"class": input_style, "autofocus": True}
+        ),
+    )
     new_password1 = forms.CharField(
         label="Новый пароль",
         widget=forms.PasswordInput(attrs={"class": input_style}),
