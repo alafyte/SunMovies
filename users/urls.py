@@ -11,6 +11,7 @@ urlpatterns = [
     path('activate/<uidb64>/<token>', activation_view, name='activate'),
     path('settings/', SettingsPageView.as_view(), name="settings"),
     path('my_orders', OrdersView.as_view(), name="my_orders"),
+    path('archive_orders', ArchiveOrdersView.as_view(), name="archive_orders"),
     path('password_change/', UserPasswordChangeView.as_view(), name='password_change'),
     path('password_change/done/', UserPasswordChangeDoneView.as_view(), name='password_change_done'),
     path('password_reset/', UserPasswordResetView.as_view(), name='password_reset'),

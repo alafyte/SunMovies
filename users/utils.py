@@ -6,6 +6,11 @@ settings_tabs = [
     {"id": 5, "title": "Выйти из аккаунта", "url_name": "logout", "icon": "images/logout.svg"},
 ]
 
+tickets_tabs = [
+    {'id': 1, "title": "Действующие", "url_name": "my_orders"},
+    {'id': 2, "title": "Архив", "url_name": "archive_orders"}
+]
+
 
 class SettingsContextMixin:
     def get_user_context(self, **kwargs):

@@ -3,13 +3,128 @@
 {% block content %}
     <div class="p-4 sm:ml-64">
         <div class="p-4 mt-14">
-            <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                Ваши билеты
-            </h1>
-            {% for order in orders %}
-               <p class="text-md font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white"> {{ order }}</p>
-            {% endfor %}
+            <div class="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400
+            dark:border-gray-700">
+                <ul class="flex flex-wrap -mb-px">
+                    {% for tab in tickets_tabs %}
+                        {% if tab.id == tickets_tab_selected %}
+                            <li class="mr-2">
+                                <a href="{% url tab.url_name %}"
+                                   class="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active
+                           dark:text-blue-500 dark:border-blue-500"
+                                   aria-current="page">
+                                    {{ tab.title }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="mr-2">
+                                <a href="{% url tab.url_name %}"
+                                   class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600
+                           hover:border-gray-300 dark:hover:text-gray-300">
+                                    {{ tab.title }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                </ul>
+            </div>
+            {% if orders %}
+                <h1 class="text-xl mb-4 mt-4 font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                    {{ title }}
+                </h1>
+                <div class="w-full space-y-4 md:space-y-6">
+                    {% for ticket in orders %}
+                        <div class="max-w-2xl p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="space-y-2 md:space-y-4 sm:mb-4">
+                                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                        Билет №{{ ticket.id }}
+                                    </h5>
+                                    <p class="font-normal text-sm text-gray-700 dark:text-gray-400">
+                                        Дата оформления: {{ ticket.date_of_order }}
+                                    </p>
+                                    <p class="font-normal text-xl text-gray dark:text-white">
+                                        <strong>Фильм:</strong> {{ ticket.session.movie.movie_name }}
+                                        ({{ ticket.session.movie.age_rating }})
+                                    </p>
+                                    <p class="font-normal text-xl text-gray dark:text-white">
+                                        <strong>Сеанс:</strong> {{ ticket.session.date_session }} {{ ticket.session.schedule.time }}
+                                    </p>
+                                    <p class="font-normal text-xl text-gray dark:text-white">
+                                        <strong>Зал:</strong> {{ ticket.session.schedule.hall }}
+                                    </p>
+                                    <p class="font-normal text-xl text-gray dark:text-white">
+                                        <strong>Ряд: {{ ticket.ticket_seat.row }}, место:
+                                            {{ ticket.ticket_seat.seat }}
+                                        </strong>
+                                    </p>
+                                    <p class="font-normal text-xl text-gray dark:text-white">
+                                        <strong>Цена: {{ ticket.ticket_seat.category.price }} р.</strong>
+                                    </p>
+                                </div>
+                                <div>
+                                    <img src="{{ ticket.session.movie.image.url }}"
+                                         alt="{{ ticket.session.movie.movie_name }}">
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <h1 class="text-xl mb-4 mt-4 font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                    Пока что билетов нет
+                </h1>
+            {% endif %}
         </div>
     </div>
-
+    <nav aria-label="Page navigation example" class="mb-10 flex justify-center">
+        {% if page_obj.has_other_pages %}
+            <ul class="flex items-center -space-x-px h-8 text-sm">
+                {% if page_obj.has_previous %}
+                    <li>
+                        <a href="?page={{ page_obj.previous_page_number }}"
+                           class="flex items-center justify-center px-3 h-8 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                            <span class="sr-only">Previous</span>
+                            <svg class="w-2.5 h-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                 viewBox="0 0 6 10">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                      stroke-width="2" d="M5 1 1 5l4 4"></path>
+                            </svg>
+                        </a>
+                    </li>
+                {% endif %}
+                {% for p in page_obj.paginator.page_range %}
+                    {% if page_obj.number == p %}
+                        <li>
+                            <div aria-current="page"
+                                 class="z-10 flex items-center justify-center px-3 h-8 leading-tight text-blue-600 border
+                           border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700
+                           dark:bg-gray-700 dark:text-white">{{ p }}</div>
+                        </li>
+                    {% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2 %}
+                        <li>
+                            <a href="?page={{ p }}"
+                               class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border
+                       border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700
+                       dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">{{ p }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <li>
+                        <a href="?page={{ page_obj.next_page_number }}"
+                           class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                            <span class="sr-only">Next</span>
+                            <svg class="w-2.5 h-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                 viewBox="0 0 6 10">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                      stroke-width="2" d="m1 9 4-4-4-4"></path>
+                            </svg>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        {% endif %}
+    </nav>
 {% endblock %}

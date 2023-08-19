@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordChangeDoneView, PasswordResetView, \
     PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
@@ -16,7 +18,7 @@ from cinema_app.utils import DataContextMixin
 from .forms import LoginUserForm, RegisterUserForm, ProfileChangeForm, UserPasswordChangeForm, PasswordResetEmailForm, \
     SetNewPasswordForm
 from .tokens import account_activation_token
-from .utils import SettingsContextMixin
+from .utils import SettingsContextMixin, tickets_tabs
 
 # Create your views here.
 User = get_user_model()
@@ -116,13 +118,38 @@ class OrdersView(SettingsContextMixin, ListView):
     template_name = 'users/orders.html'
     context_object_name = 'orders'
     model = Ticket
+    paginate_by = 3
 
     def get_queryset(self):
-        return Ticket.objects.filter(user=self.request.user)
+        return Ticket.objects.filter(user=self.request.user,
+                                     session__date_session__gte=datetime.now().date(),
+                                     session__schedule__time__gt=datetime.now().time(),
+                                     ).order_by('-date_of_order')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user_context = self.get_user_context(title="Мои билеты", tab_selected=4)
+        user_context = self.get_user_context(title="Действующие билеты", tickets_tabs=tickets_tabs,
+                                             tab_selected=4, tickets_tab_selected=1)
+        context = dict(list(context.items()) + list(user_context.items()))
+        return context
+
+
+class ArchiveOrdersView(SettingsContextMixin, ListView):
+    template_name = 'users/orders.html'
+    context_object_name = 'orders'
+    model = Ticket
+    paginate_by = 3
+
+    def get_queryset(self):
+        return Ticket.objects.filter(user=self.request.user,
+                                     session__date_session__lte=datetime.now().date(),
+                                     session__schedule__time__lte=datetime.now().time(),
+                                     ).order_by('-date_of_order')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_context = self.get_user_context(title="Архив билетов", tickets_tabs=tickets_tabs,
+                                             tab_selected=4, tickets_tab_selected=2)
         context = dict(list(context.items()) + list(user_context.items()))
         return context
 
