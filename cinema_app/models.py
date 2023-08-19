@@ -65,12 +65,12 @@ class Session(models.Model):
     def get_absolute_url(self):
         return reverse('session', kwargs={'session_pk': self.id})
 
+    # should be for 'create' operation only
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
-        if self.id is None:
-            for seat in Seat.objects.filter(hall=self.schedule.hall):
-                Ticket.objects.create(session=self, ticket_seat=seat)
+        for seat in Seat.objects.filter(hall=self.schedule.hall):
+            Ticket.objects.create(session=self, ticket_seat=seat)
 
     class Meta:
         verbose_name = "Сеанс"
@@ -122,12 +122,21 @@ class Ticket(models.Model):
     date_of_order = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, related_name="user", verbose_name="Пользователь", on_delete=models.CASCADE,
                              null=True, blank=True)
-    session = models.ForeignKey("Session", related_name="session", verbose_name="Сеанс", on_delete=models.CASCADE)
+    session = models.ForeignKey("Session", related_name="session", verbose_name="Сеанс",
+                                on_delete=models.CASCADE)
     ticket_seat = models.ForeignKey("Seat", related_name="ticket_seat", verbose_name="Место", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "Билет №" + self.id.__str__()
 
     def save(self, *args, **kwargs):
         self.date_of_order = timezone.localtime()
         return super(Ticket, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Билет"
+        verbose_name_plural = "Билеты"
+        ordering = ("id",)
 
 
 class Schedule(models.Model):

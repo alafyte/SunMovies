@@ -8,10 +8,15 @@ class MovieAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("movie_name", )}
 
 
+class SessionAdmin(admin.ModelAdmin):
+    readonly_fields = ('date_session', 'movie', 'schedule')
+
+
 admin.site.register(Movie, MovieAdmin)
 admin.site.register(Seat)
 admin.site.register(Genre)
 admin.site.register(Category)
 admin.site.register(Hall)
-admin.site.register(Session)
+admin.site.register(Session, SessionAdmin)
 admin.site.register(Schedule)
+admin.site.register(Ticket)
