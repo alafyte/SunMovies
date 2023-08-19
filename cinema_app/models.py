@@ -124,7 +124,6 @@ class Ticket(models.Model):
                              null=True, blank=True)
     session = models.ForeignKey("Session", related_name="session", verbose_name="Сеанс", on_delete=models.CASCADE)
     ticket_seat = models.ForeignKey("Seat", related_name="ticket_seat", verbose_name="Место", on_delete=models.CASCADE)
-    ordered = models.BooleanField(default=False, verbose_name="Заказан")
 
     def save(self, *args, **kwargs):
         self.date_of_order = timezone.localtime()
