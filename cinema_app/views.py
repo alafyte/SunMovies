@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
 from django.views import View
@@ -12,6 +14,17 @@ class HomeView(DataContextMixin, ListView):
     model = Movie
     template_name = 'cinema_app/index.html'
     context_object_name = "movies"
+
+    def get_queryset(self):
+        movies = Movie.objects.filter(date_start__lte=datetime.datetime.now(), date_end__gte=datetime.datetime.now())
+        query_name = self.request.GET.get('search_name')
+        query_date = self.request.GET.get('search_date')
+        if query_name:
+            movies = movies.filter(movie_name__icontains=query_name)
+        if query_date:
+            query_date = datetime.datetime.strptime(query_date, '%d-%m-%Y').strftime('%Y-%m-%d')
+            movies = movies.filter(date_start__lte=query_date, date_end__gte=query_date)
+        return movies
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)

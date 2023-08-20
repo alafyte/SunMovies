@@ -8,7 +8,7 @@ urlpatterns = [
     path('', HomeView.as_view(), name="home"),
     path('movie/<slug:movie_slug>/', MovieView.as_view(), name="movie"),
     path('movie/session/<int:session_pk>/', SessionView.as_view(), name="session"),
-    path('order/', CreateOrderView.as_view(), name="order")
+    path('order/', CreateOrderView.as_view(), name="order"),
 ]
 
 if settings.DEBUG:
