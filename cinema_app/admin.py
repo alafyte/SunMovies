@@ -9,7 +9,10 @@ class MovieAdmin(admin.ModelAdmin):
 
 
 class SessionAdmin(admin.ModelAdmin):
-    readonly_fields = ('date_session', 'movie', 'schedule')
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return self.readonly_fields + ('date_session', 'movie', 'schedule')
+        return self.readonly_fields
 
 
 admin.site.register(Movie, MovieAdmin)

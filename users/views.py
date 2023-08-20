@@ -121,10 +121,12 @@ class OrdersView(SettingsContextMixin, ListView):
     paginate_by = 3
 
     def get_queryset(self):
-        return Ticket.objects.filter(user=self.request.user,
-                                     session__date_session__gte=datetime.now().date(),
-                                     session__schedule__time__gt=datetime.now().time(),
-                                     ).order_by('-date_of_order')
+        tickets = Ticket.objects.filter(user=self.request.user).order_by('-date_of_order')
+        queryset = []
+        for ticket in tickets:
+            if datetime.combine(ticket.session.date_session, ticket.session.schedule.time) >= datetime.now():
+                queryset.append(ticket)
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -141,10 +143,12 @@ class ArchiveOrdersView(SettingsContextMixin, ListView):
     paginate_by = 3
 
     def get_queryset(self):
-        return Ticket.objects.filter(user=self.request.user,
-                                     session__date_session__lte=datetime.now().date(),
-                                     session__schedule__time__lte=datetime.now().time(),
-                                     ).order_by('-date_of_order')
+        tickets = Ticket.objects.filter(user=self.request.user).order_by('-date_of_order')
+        queryset = []
+        for ticket in tickets:
+            if datetime.combine(ticket.session.date_session, ticket.session.schedule.time) < datetime.now():
+                queryset.append(ticket)
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
