@@ -1,0 +1,33 @@
+{% if ticket.user %}
+    <label>
+        <svg width="56" height="50" viewBox="0 0 56 50" fill="none"
+             xmlns="http://www.w3.org/2000/svg">
+            <rect x="7.19469" y="1" width="41.3628" height="48" rx="13" fill="#899086"
+                  stroke="black" stroke-width="2"></rect>
+            <path d="M17.5841 30.531V49H14C6.8203 49 1 43.1797 1 36V30.531C1 25.9514 4.71247 22.2389 9.29204 22.2389C13.8716 22.2389 17.5841 25.9514 17.5841 30.531Z"
+                  fill="#899086" stroke="black" stroke-width="2"></path>
+            <path d="M38.1681 30.531V49H41.7522C48.9319 49 54.7522 43.1797 54.7522 36V30.531C54.7522 25.9514 51.0397 22.2389 46.4602 22.2389C41.8806 22.2389 38.1681 25.9514 38.1681 30.531Z"
+                  fill="#899086" stroke="black" stroke-width="2"></path>
+            <line x1="17.6991" y1="29.0885" x2="38.938" y2="29.0885" stroke="black"
+                  stroke-width="2"></line>
+        </svg>
+        <input class="hidden" type="checkbox" name="ticket{{ ticket.id }}"
+               value="{{ ticket.id }}" disabled/>
+    </label>
+{% else %}
+    <label class="cursor-pointer">
+        <svg width="56" height="50" viewBox="0 0 56 50" fill="none"
+             xmlns="http://www.w3.org/2000/svg">
+            <rect x="7.19469" y="1" width="41.3628" height="48" rx="13" fill="{{ color }}"
+                  stroke="black" stroke-width="2"></rect>
+            <path d="M17.5841 30.531V49H14C6.8203 49 1 43.1797 1 36V30.531C1 25.9514 4.71247 22.2389 9.29204 22.2389C13.8716 22.2389 17.5841 25.9514 17.5841 30.531Z"
+                  fill="{{ color }}" stroke="black" stroke-width="2"></path>
+            <path d="M38.1681 30.531V49H41.7522C48.9319 49 54.7522 43.1797 54.7522 36V30.531C54.7522 25.9514 51.0397 22.2389 46.4602 22.2389C41.8806 22.2389 38.1681 25.9514 38.1681 30.531Z"
+                  fill="{{ color }}" stroke="black" stroke-width="2"></path>
+            <line x1="17.6991" y1="29.0885" x2="38.938" y2="29.0885" stroke="black"
+                  stroke-width="2"></line>
+        </svg>
+        <input class="hidden" type="checkbox" name="ticket{{ ticket.id }}"
+               value="{{ ticket.id }}"/>
+    </label>
+{% endif %}
