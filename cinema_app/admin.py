@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import *
+from datetime import datetime
 
 
 # Register your models here.
@@ -13,6 +14,11 @@ class SessionAdmin(admin.ModelAdmin):
         if obj:
             return self.readonly_fields + ('date_session', 'movie', 'schedule')
         return self.readonly_fields
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(SessionAdmin, self).get_form(request, obj, **kwargs)
+        form.base_fields['movie'].queryset = Movie.objects.filter(date_end__gte=datetime.now())
+        return form
 
 
 admin.site.register(Movie, MovieAdmin)
