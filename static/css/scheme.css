@@ -1,0 +1,16 @@
+@media (max-width: 768px) {
+    .scheme {
+        width: 200%;
+    }
+}
+
+.chosenSeat {
+}
+
+.chosenSeat path {
+    fill: white;
+}
+
+.chosenSeat rect {
+    fill: white;
+}
