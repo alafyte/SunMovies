@@ -1,5 +1,5 @@
 {% if ticket.user %}
-    <label>
+    <label data-tooltip-target="tooltip-not-free{{ ticket.id }}">
         <svg width="100" height="50" viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="12.1111" y="1" width="75.7778" height="48" rx="13" fill="#899086" stroke="black"
                   stroke-width="2"></rect>
@@ -12,8 +12,13 @@
         <input class="hidden" type="checkbox" name="ticket{{ ticket.id }}"
                value="{{ ticket.id }}" disabled/>
     </label>
+    <div id="tooltip-not-free{{ ticket.id }}" role="tooltip"
+         class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+        Место занято
+        <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
 {% else %}
-    <label class="cursor-pointer">
+    <label class="cursor-pointer" data-tooltip-target="tooltip-free{{ ticket.id }}">
         <svg width="100" height="50" viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="12.1111" y="1" width="75.7778" height="48" rx="13" fill="#E35BC4" stroke="black"
                   stroke-width="2"></rect>
@@ -26,4 +31,11 @@
         <input class="hidden" type="checkbox" name="ticket{{ ticket.id }}"
                value="{{ ticket.id }}"/>
     </label>
+    <div id="tooltip-free{{ ticket.id }}" role="tooltip"
+         class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+        Ряд: {{ ticket.ticket_seat.row }}, место: {{ ticket.ticket_seat.seat }}
+        <br/>
+        Цена: {{ ticket.ticket_seat.category.price }}р.
+        <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
 {% endif %}
