@@ -10,8 +10,10 @@
     {% compress css %}
         <link rel="stylesheet" href="{% static 'css/output.css' %}">
     {% endcompress %}
+    {% block styles %}
+    {% endblock %}
 </head>
-<body class="dark:bg-black">
+<body class="dark:bg-gray-900">
 
 
 <nav class="bg-white border-gray-200 dark:bg-gray-900">
