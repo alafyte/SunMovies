@@ -1,17 +1,99 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <img src="{{ movie.image.url }}" alt="{{ movie.movie_name }}">
-    <p>{{ movie.date_start }} - {{ movie.date_end }}</p>
-    <p>{{ movie.age_rating }}</p>
-    <p>{{ movie.duration }} мин.</p>
-    <p>{{ movie.genre }}</p>
-    <p>{{ movie.description }}</p>
-    <video width="500px" src="{{ movie.trailer.url }}" controls></video>
-    <br/>
 
-    {% for movie_session in movie_sessions %}
-    <a style="display: block" href="{{ movie_session.get_absolute_url }}">{{ movie_session }}</a>
-    {% endfor %}
+    <div class="flex flex-col md:items-start items-center mx-auto mt-10 shadow md:flex-row md:max-w-3xl">
+        <img class="object-cover h-96 md:h-auto md:w-64 md:rounded-none md:rounded-l-lg"
+             src="{{ movie.image.url }}" alt="{{ movie.movie_name }}">
+        <div class="flex flex-col p-4 leading-normal">
+            <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                {{ movie.movie_name }}
+            </h5>
+            <p class="mb-3 text-lg font-normal text-gray-700 dark:text-white">
+                В кино с {{ movie.date_start }} по {{ movie.date_end }}
+            </p>
+            <p class="mb-3 text-lg font-normal text-gray-700 dark:text-white">
+                {{ movie.genre }}
+            </p>
+            <p class="mb-3 text-lg font-normal text-gray-700 dark:text-white">
+                Длительность: {{ movie.duration }} мин.
+            </p>
+            <p class="mb-3 text-lg font-normal text-gray-700 dark:text-white">
+                Возрастные ограничения: {{ movie.age_rating }}
+            </p>
+        </div>
+    </div>
+    <div class="md:max-w-4xl md:mx-auto w-full px-4">
+        <p class="text-gray-700 text-lg font-normal mt-4 dark:text-white text-justify">
+            {{ movie.description }}
+        </p>
+        <video class="w-full mt-4" controls="controls">
+            <source src="{{ movie.trailer.url }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <h1 class="mt-8 font-bold text-3xl leading-tight tracking-tight text-center
+        text-gray-900 md:text-4xl dark:text-white">
+            Расписание
+        </h1>
+    </div>
 
+    <div class="md:max-w-md md:mx-auto w-full px-4 mt-8">
+        <form method="get">
+            <label for="default-search"
+                   class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"></path>
+                    </svg>
+                </div>
+                <input required datepicker datepicker-autohide type="text" datepicker-format="dd-mm-yyyy"
+                       name="search_date" aria-autocomplete="none" autocomplete="off"
+                       class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50
+                       focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600
+                       dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                       placeholder="Искать по дате...">
+                <button type="submit"
+                        class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                    Поиск
+                </button>
+            </div>
+        </form>
+    </div>
+
+
+    {% if movie_sessions %}
+        <h1 class="md:max-w-4xl md:mx-auto w-full px-4 text-xl mb-4 mt-4 font-bold leading-tight tracking-tight
+        text-gray-900 md:text-2xl dark:text-white text-center">
+            {{ session_date }}
+        </h1>
+        <div class="md:max-w-4xl md:mx-auto w-full px-4 grid md:grid-cols-5 gap-4">
+            {% for movie_session in movie_sessions %}
+
+                <a href="{{ movie_session.get_absolute_url }}"
+                   class="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100
+                   dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                        {{ movie_session.schedule.time }}
+                    </h5>
+                    <p class="font-normal text-gray-700 dark:text-gray-400">
+                        {{ movie_session.schedule.hall }}
+                    </p>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <h1 class="md:max-w-4xl md:mx-auto w-full px-4 text-xl mb-4 mt-4 font-bold leading-tight tracking-tight
+        text-gray-900 md:text-2xl dark:text-white text-center">
+            Сеансов на эту дату нет
+        </h1>
+    {% endif %}
+
+
+    {% include 'footer.html' %}
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/datepicker.min.js"></script>
 {% endblock %}
