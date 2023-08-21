@@ -1,7 +1,9 @@
 from datetime import datetime
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import redirect
+from django.core.exceptions import ValidationError
+from django.http import Http404
+from django.shortcuts import redirect, render
 from django.views import View
 from django.views.generic import ListView, DetailView
 
@@ -81,11 +83,35 @@ class SessionView(LoginRequiredMixin, DataContextMixin, DetailView):
         return context
 
 
-class CreateOrderView(View):
-    def post(self, request, *args, **kwargs):
-        tickets = [value for key, value in self.request.POST.items() if key != 'csrfmiddlewaretoken']
+def createOrderView(request):
+    if request.method == "POST":
+        tickets = [value for key, value in request.POST.items() if key != 'csrfmiddlewaretoken']
         for ticket in Ticket.objects.filter(id__in=tickets):
-            ticket.ordered = True
+            if ticket.session.date_session == datetime.now().date() \
+                    and ticket.session.schedule.time <= datetime.now().time():
+                raise Http404("Сеанс не найден")
             ticket.user = request.user
             ticket.save()
-        return redirect(reverse('home'))
+        return redirect(reverse('my_orders'))
+
+
+class ConfirmOrderView(DataContextMixin, View):
+    def post(self, *args, **kwargs):
+        request_tickets = [value for key, value in self.request.POST.items() if key != 'csrfmiddlewaretoken']
+        total_price = 0
+        session = None
+        tickets = []
+        for ticket in Ticket.objects.filter(id__in=request_tickets):
+            total_price += ticket.ticket_seat.category.price
+            session = ticket.session
+            tickets.append(ticket)
+
+        user_context = self.get_user_context(title=f"Подтверждение заказа",
+                                             menu_tab_selected=1)
+        context = {
+            'session': session,
+            'tickets': tickets,
+            'total_price': total_price
+        }
+        context = dict(list(context.items()) + list(user_context.items()))
+        return render(self.request, 'cinema_app/confirm_order.html', context)

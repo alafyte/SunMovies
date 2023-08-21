@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="md:max-w-4xl md:mx-auto w-full px-4 text-xl mb-6 mt-4 font-bold leading-tight tracking-tight
+        text-gray-900 md:text-4xl dark:text-white text-center">
+        Подтверждение заказа
+    </h1>
+    <div class="relative md:max-w-3xl w-full mx-auto">
+        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+                <th scope="col" class="px-6 py-3">
+                    Фильм
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Билет
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Сеанс
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Зал
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Цена
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for ticket in tickets %}
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+                    <td class="px-6 py-4">
+                        {{ session.movie.movie_name }}
+                    </td>
+                    <td class="px-6 py-4">
+                        Ряд: {{ ticket.ticket_seat.row }}, место: {{ ticket.ticket_seat.seat }}
+                    </td>
+                    <td class="px-6 py-4">
+                        {{ session.date_session }} {{ session.schedule.time }}
+                    </td>
+                    <td class="px-6 py-4">
+                        {{ session.schedule.hall }}
+                    </td>
+                    <td class="px-6 py-4">
+                        {{ ticket.ticket_seat.category.price }}р.
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+            <tfoot>
+            <tr class="font-semibold text-gray-900 dark:text-white">
+                <th scope="row" class="px-6 py-3 text-base">Итого</th>
+                <td class="px-6 py-3"></td>
+                <td class="px-6 py-3"></td>
+                <td class="px-6 py-3"></td>
+                <td class="px-6 py-3">{{ total_price }}р.</td>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <form method="post" action="{% url 'order' %}" class="flex flex-col md:max-w-3xl mx-auto">
+        {% csrf_token %}
+        {% for ticket in tickets %}
+            <input class="hidden" type="checkbox" checked name="ticket{{ ticket.id }}"
+                   value="{{ ticket.id }}"/>
+        {% endfor %}
+        <div class="flex justify-center">
+            <button type="submit"
+                    class="w-1/3 my-5 mx-auto text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none
+                            focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center
+                            dark:bg-blue-700 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                Подтвердить
+            </button>
+            <button type="button" onClick="javascript:history.go(-1)"
+                    class="w-1/3 my-5 mx-auto text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none
+                            focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center
+                            dark:bg-gray-700 dark:focus:ring-blue-800">
+                Вернуться к выбору билетов
+            </button>
+        </div>
+    </form>
+{% endblock %}

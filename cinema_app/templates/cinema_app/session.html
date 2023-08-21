@@ -1,31 +1,108 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/scheme.css' %}"/>
+{% endblock %}
+
+
 {% block content %}
-    {{ session }}
-    <br/>
-    <form method="post" action="{% url 'order' %}">
-        {% csrf_token %}
-        {% for ticket in tickets %}
-            {% if ticket.ticket_seat.seat == 1 %}
-                <br/>ряд:{{ ticket.ticket_seat.row }}:
-            {% endif %}
-            {% if ticket.user %}
-                <label style="display: flex; justify-content: center; align-items: center; background-color: gray;
-        border-radius: 20px; width: 50px; height: 50px; cursor: pointer">
-                    {{ ticket.ticket_seat.seat }}
-                    <input type="checkbox" name="ticket{{ ticket.id }}"
-                           value="{{ ticket.id }}" disabled/>
-                </label>
-            {% else %}
-                <label style="display: flex; justify-content: center; align-items: center; background-color: beige;
-        border-radius: 20px; width: 50px; height: 50px; cursor: pointer">
-                    {{ ticket.ticket_seat.seat }}
-                    <input type="checkbox" name="ticket{{ ticket.id }}"
-                           value="{{ ticket.id }}"/>
-                </label>
-            {% endif %}
-        {% endfor %}
-        <button type="submit">Купить билеты</button>
-    </form>
+    <h1 class="md:max-w-4xl md:mx-auto w-full px-4 text-xl mb-4 mt-4 font-bold leading-tight tracking-tight
+        text-gray-900 md:text-4xl dark:text-white text-center">
+        Фильм {{ session.movie.movie_name }}, {{ session.schedule.hall }}
+    </h1>
+    <h1 class="md:max-w-4xl md:mx-auto w-full px-4 text-xl mb-4 mt-4 font-bold leading-tight tracking-tight
+        text-gray-900 md:text-2xl dark:text-white text-center">
+        Сеанс {{ session.date_session }} {{ session.schedule.time }}
+    </h1>
+
+    <div class="overflow-scroll md:overflow-hidden">
+        <form method="post" action="{% url 'confirm-order' %}"
+              class="border flex flex-col border-gray-200 rounded-lg md:max-w-3xl mx-auto scheme">
+            {% csrf_token %}
+
+            <svg viewBox="0 0 1300 60" class="w-full mt-4" height="60">
+                <path d="M20,20 Q 650 4, 1280 20" class="sc-ccXozh ibOKzl" fill="white"></path>
+                <text text-anchor="middle" x="50%" dy="3%" fill="white"
+                      font-family="Ubuntu, Roboto, Arial, Helvetica, sans-serif" font-size="31.2" font-weight="700"
+                      class="sc-bsVVwV hWBiPl">
+                    Экран
+                </text>
+            </svg>
+            <div class="flex flex-row nowrap justify-center seats-container">
+                {% for ticket in tickets %}
+                    {% if ticket.ticket_seat.seat == 1 %}
+                        </div>
+                        <div class="flex nowrap flex-row justify-center  seats-container">
+                        <div class="px-4 text-xl mb-4 mt-4 font-bold leading-tight tracking-tight
+                                text-gray-900 md:text-2xl dark:text-white">
+                            {{ ticket.ticket_seat.row }}
+                        </div>
+                    {% endif %}
+                    {% if ticket.ticket_seat.category.category_name == "Стандарт" %}
+                        {% include 'cinema_app/seats/seat.html' with ticket=ticket color="#67E35B" %}
+                    {% elif ticket.ticket_seat.category.category_name == "Комфорт" %}
+                        {% include 'cinema_app/seats/seat.html' with ticket=ticket color="#5BB4E3" %}
+                    {% else %}
+                        {% include 'cinema_app/seats/sofa.html' with ticket=ticket %}
+                    {% endif %}
+                {% endfor %}
+                </div>
+            <div class="flex justify-center mt-4 mb-2">
+                <span class="bg-gray-100 text-green-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5
+                rounded mr-2 dark:bg-gray-700 dark:text-green-400 border border-green-500">
+                    <svg class="w-2.5 h-2.5 mr-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                         fill="currentColor"
+                         viewBox="0 0 20 20">
+                        <circle cx="10" cy="10" r="10" fill="#67E35B"></circle>
+                    </svg>
+                    Стандарт - 10 р.
+                </span>
+                <span class="bg-blue-100 text-blue-800 mr-2 text-xs font-medium inline-flex items-center px-2.5 py-0.5
+                rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400">
+                    <svg class="w-2.5 h-2.5 mr-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                         fill="currentColor"
+                         viewBox="0 0 20 20">
+                        <circle cx="10" cy="10" r="10" fill="#5BB4E3"></circle>
+                    </svg>
+                    Комфорт - 15 р.
+                </span>
+                <span class="bg-gray-100 mr-2 text-pink-800 text-xs font-medium inline-flex items-center
+                 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-pink-400 border border-pink-400">
+                    <svg class="w-2.5 h-2.5 mr-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                         fill="currentColor"
+                         viewBox="0 0 20 20">
+                        <circle cx="10" cy="10" r="10" fill="#E35BC4"></circle>
+                    </svg>
+                    Диван на двоих - 25 р.
+                </span>
+                <span class="bg-gray-100 text-gray-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded mr-2 dark:bg-gray-700 dark:text-gray-400 border border-gray-500">
+                    <svg class="w-2.5 h-2.5 mr-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                         fill="currentColor"
+                         viewBox="0 0 20 20">
+                        <circle cx="10" cy="10" r="10" fill="#899086"></circle>
+                    </svg>
+                    Место занято
+                </span>
+            </div>
+
+            <button type="submit" id="order-button" disabled
+                    class="w-1/3 my-5 mx-auto text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none
+                            focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center
+                            disabled:dark:bg-blue-400
+                            dark:bg-blue-700 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                Купить билеты
+            </button>
+        </form>
+    </div>
+    {% include 'footer.html' %}
+{% endblock %}
+
+{% block scripts %}
+    <script
+            src="https://code.jquery.com/jquery-3.6.3.js"
+            integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM="
+            crossorigin="anonymous">
+    </script>
+    <script type="text/javascript" src="{% static 'js/chooseSeats.js' %}"></script>
 {% endblock %}
