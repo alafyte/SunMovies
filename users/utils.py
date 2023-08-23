@@ -11,6 +11,11 @@ tickets_tabs = [
     {'id': 2, "title": "Архив", "url_name": "archive_orders"}
 ]
 
+movies_tabs = [
+    {'id': 1, "title": "Сейчас в кино", "url_name": "home"},
+    {'id': 2, "title": "Скоро в прокате", "url_name": "coming-soon"}
+]
+
 
 class SettingsContextMixin:
     def get_user_context(self, **kwargs):

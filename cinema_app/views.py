@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
@@ -9,6 +9,7 @@ from django.views.generic import ListView, DetailView
 
 from cinema_app.models import *
 from cinema_app.utils import DataContextMixin
+from users.utils import movies_tabs
 
 
 # Create your views here.
@@ -30,7 +31,26 @@ class HomeView(DataContextMixin, ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
-        user_context = self.get_user_context(title="Главная", menu_tab_selected=1)
+        user_context = self.get_user_context(title="Главная", menu_tab_selected=1,
+                                             movies_tabs=movies_tabs, movies_tabs_selected=1)
+        context = dict(list(context.items()) + list(user_context.items()))
+        return context
+
+
+class ComingSoonView(DataContextMixin, ListView):
+    model = Movie
+    template_name = 'cinema_app/index.html'
+    context_object_name = "movies"
+
+    def get_queryset(self):
+        movies = Movie.objects.filter(date_start__lte=datetime.now() + timedelta(days=10),
+                                      date_start__gt=datetime.now(), date_end__gte=datetime.now())
+        return movies
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(ComingSoonView, self).get_context_data(**kwargs)
+        user_context = self.get_user_context(title="Скоро в кино", menu_tab_selected=1,
+                                             movies_tabs=movies_tabs, movies_tabs_selected=2)
         context = dict(list(context.items()) + list(user_context.items()))
         return context
 
@@ -118,3 +138,27 @@ class CreateOrderView(DataContextMixin, View):
         user_context = self.get_user_context(title=f"Заказ подтвержден",
                                              menu_tab_selected=0)
         return render(self.request, 'cinema_app/tickets_order_done.html', user_context)
+
+
+class AboutView(DataContextMixin, View):
+    def get(self, args, **kwargs):
+        context = self.get_user_context(title=f"О нас", menu_tab_selected=2)
+        return render(self.request, 'cinema_app/about_us.html', context=context)
+
+
+class PricesView(DataContextMixin, ListView):
+    model = Category
+    template_name = 'cinema_app/prices.html'
+    context_object_name = 'prices'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(PricesView, self).get_context_data(**kwargs)
+        user_context = self.get_user_context(title=f"Цены", menu_tab_selected=3)
+        context = dict(list(context.items()) + list(user_context.items()))
+        return context
+
+
+class ContactsView(DataContextMixin, View):
+    def get(self, args, **kwargs):
+        context = self.get_user_context(title=f"Контакты", menu_tab_selected=4)
+        return render(self.request, 'cinema_app/contacts.html', context=context)
