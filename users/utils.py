@@ -19,3 +19,14 @@ class SettingsContextMixin:
         if 'tab_selected' not in context:
             context['tab_selected'] = 2
         return context
+
+
+class MessageContextMixin:
+    def get_session_context(self, request, message_types, **kwargs):
+        context = kwargs
+        for message_type in message_types:
+            message = request.session.get(message_type)
+            if message:
+                context[message_type] = message
+                del request.session[message_type]
+        return context

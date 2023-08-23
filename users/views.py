@@ -18,7 +18,7 @@ from cinema_app.utils import DataContextMixin
 from .forms import LoginUserForm, RegisterUserForm, ProfileChangeForm, UserPasswordChangeForm, PasswordResetEmailForm, \
     SetNewPasswordForm
 from .tokens import account_activation_token
-from .utils import SettingsContextMixin, tickets_tabs
+from .utils import SettingsContextMixin, tickets_tabs, MessageContextMixin
 
 # Create your views here.
 User = get_user_model()
@@ -29,7 +29,7 @@ def logout_view(request):
     return redirect(reverse('login'))
 
 
-class UserLoginView(DataContextMixin, LoginView):
+class UserLoginView(DataContextMixin, MessageContextMixin, LoginView):
     form_class = LoginUserForm
     template_name = 'users/login.html'
 
@@ -38,16 +38,9 @@ class UserLoginView(DataContextMixin, LoginView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        message = self.request.session.get('info_message')
-        if message:
-            context['info_message'] = message
-            del self.request.session['info_message']
-        message = self.request.session.get('error_message')
-        if message:
-            context['error_message'] = message
-            del self.request.session['error_message']
         user_context = self.get_user_context(title="Вход", menu_tab_selected=6)
-        context = dict(list(context.items()) + list(user_context.items()))
+        session_context = self.get_session_context(self.request, message_types=['info_message', 'error_message'])
+        context = dict(list(context.items()) + list(user_context.items()) + list(session_context.items()))
         return context
 
 
@@ -59,7 +52,10 @@ def activation_view(request, uidb64, token):
         user = None
 
     if user is not None:
-        if account_activation_token.check_token(user, token):
+        if user.is_active:
+            request.session['error_message'] = "Вы уже зарегистрированы, войдите в аккаунт"
+            return redirect('login')
+        elif account_activation_token.check_token(user, token):
             user.is_active = True
             user.save()
             login(request, user)
@@ -91,7 +87,7 @@ def activate_email(request, user, to_email):
         return False
 
 
-class SettingsPageView(LoginRequiredMixin, SettingsContextMixin, UpdateView):
+class SettingsPageView(LoginRequiredMixin, SettingsContextMixin, MessageContextMixin, UpdateView):
     form_class = ProfileChangeForm
     template_name = 'users/account_settings.html'
     success_url = reverse_lazy('settings')
@@ -106,11 +102,8 @@ class SettingsPageView(LoginRequiredMixin, SettingsContextMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user_context = self.get_user_context(title="Настройки", tab_selected=2)
-        message = self.request.session.get('info_message')
-        if message:
-            context['info_message'] = message
-            del self.request.session['info_message']
-        context = dict(list(context.items()) + list(user_context.items()))
+        session_context = self.get_session_context(self.request, message_types=['info_message'])
+        context = dict(list(context.items()) + list(user_context.items()) + list(session_context.items()))
         return context
 
 
@@ -158,7 +151,7 @@ class ArchiveOrdersView(SettingsContextMixin, ListView):
         return context
 
 
-class RegisterUserView(DataContextMixin, CreateView):
+class RegisterUserView(DataContextMixin, MessageContextMixin, CreateView):
     form_class = RegisterUserForm
     template_name = 'users/register.html'
     success_url = reverse_lazy('login')
@@ -174,17 +167,15 @@ class RegisterUserView(DataContextMixin, CreateView):
             User.objects.get(id=user.id).delete()
             self.request.session["error_message"] = "Произошла ошибка при отправке письма-подтверждения. Пройдите " \
                                                     "процедуру " \
-                                                    "регистрации заново и убедитесь в правильности введенных данных"
+                                                    "регистрации заново, проверьте подключение и убедитесь в " \
+                                                    "правильности введенных данных"
             return redirect('register')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        message = self.request.session.get('error_message')
-        if message:
-            context['error_message'] = message
-            del self.request.session['error_message']
+        session_context = self.get_session_context(self.request, message_types=['error_message'])
         user_context = self.get_user_context(title="Регистрация", menu_tab_selected=5)
-        context = dict(list(context.items()) + list(user_context.items()))
+        context = dict(list(context.items()) + list(user_context.items()) + list(session_context.items()))
         return context
 
 
