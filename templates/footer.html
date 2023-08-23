@@ -17,13 +17,13 @@
                     </li>
                 {% endif %}
                 <li>
-                    <a href="#" class="mr-4 hover:underline md:mr-6">О кинотеатре</a>
+                    <a href="{% url 'about' %}" class="mr-4 hover:underline md:mr-6">О кинотеатре</a>
                 </li>
                 <li>
-                    <a href="#" class="mr-4 hover:underline md:mr-6 ">Цены</a>
+                    <a href="{% url 'prices' %}" class="mr-4 hover:underline md:mr-6 ">Цены</a>
                 </li>
                 <li>
-                    <a href="#" class="hover:underline">Контакты</a>
+                    <a href="{% url 'contacts' %}" class="hover:underline">Контакты</a>
                 </li>
             </ul>
         </div>

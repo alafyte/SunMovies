@@ -8,6 +8,9 @@ urlpatterns = [
     path('', HomeView.as_view(), name="home"),
     path('movie/<slug:movie_slug>/', MovieView.as_view(), name="movie"),
     path('movie/session/<int:session_pk>/', SessionView.as_view(), name="session"),
+    path('about/', AboutView.as_view(), name="about"),
+    path('prices/', PricesView.as_view(), name="prices"),
+    path('contacts/', ContactsView.as_view(), name="contacts"),
     path('order/', CreateOrderView.as_view(), name="order"),
     path('confirm-order/', ConfirmOrderView.as_view(), name="confirm-order"),
 ]
