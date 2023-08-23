@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="md:max-w-4xl md:mx-auto w-full px-4 text-xl mb-6 mt-4 font-bold leading-tight tracking-tight
+        text-gray-900 md:text-4xl dark:text-white text-center">
+        Ваш заказ подтвержден
+    </h1>
+    <div class="flex justify-center md:max-w-3xl mx-auto md:flex-row flex-col">
+        <a href="{% url 'home' %}"
+                class="md:w-1/3 max-w-lg my-5 mx-auto text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none
+                            focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center
+                            dark:bg-gray-700 dark:focus:ring-blue-800">
+            Вернуться на главную
+        </a>
+        <a href="{% url 'my_orders' %}"
+                class="md:w-1/3 max-w-lg my-5 mx-auto text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none
+                            focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center
+                            dark:bg-blue-700 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            Посмотреть билеты
+        </a>
+    </div>
+{% endblock %}

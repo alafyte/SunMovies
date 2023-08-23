@@ -61,7 +61,7 @@ class MovieView(DataContextMixin, DetailView):
 
         context['movie_sessions'] = queryset
         context['session_date'] = search_filter.date()
-        user_context = self.get_user_context(title=f"{current_movie}", menu_tab_selected=1)
+        user_context = self.get_user_context(title=f"{current_movie}", menu_tab_selected=0)
         context = dict(list(context.items()) + list(user_context.items()))
         return context
 
@@ -78,21 +78,9 @@ class SessionView(LoginRequiredMixin, DataContextMixin, DetailView):
         current_session: Session = context.get('session')
         context['tickets'] = Ticket.objects.filter(session=current_session).order_by('ticket_seat')
         user_context = self.get_user_context(title=f"Сеанс {current_session.schedule.time.strftime('%H:%M')}",
-                                             menu_tab_selected=1)
+                                             menu_tab_selected=0)
         context = dict(list(context.items()) + list(user_context.items()))
         return context
-
-
-def createOrderView(request):
-    if request.method == "POST":
-        tickets = [value for key, value in request.POST.items() if key != 'csrfmiddlewaretoken']
-        for ticket in Ticket.objects.filter(id__in=tickets):
-            if ticket.session.date_session == datetime.now().date() \
-                    and ticket.session.schedule.time <= datetime.now().time():
-                raise Http404("Сеанс не найден")
-            ticket.user = request.user
-            ticket.save()
-        return redirect(reverse('my_orders'))
 
 
 class ConfirmOrderView(DataContextMixin, View):
@@ -107,7 +95,7 @@ class ConfirmOrderView(DataContextMixin, View):
             tickets.append(ticket)
 
         user_context = self.get_user_context(title=f"Подтверждение заказа",
-                                             menu_tab_selected=1)
+                                             menu_tab_selected=0)
         context = {
             'session': session,
             'tickets': tickets,
@@ -115,3 +103,18 @@ class ConfirmOrderView(DataContextMixin, View):
         }
         context = dict(list(context.items()) + list(user_context.items()))
         return render(self.request, 'cinema_app/confirm_order.html', context)
+
+
+class CreateOrderView(DataContextMixin, View):
+    def post(self, *args, **kwargs):
+        tickets = [value for key, value in self.request.POST.items() if key != 'csrfmiddlewaretoken']
+        for ticket in Ticket.objects.filter(id__in=tickets):
+            if ticket.session.date_session == datetime.now().date() \
+                    and ticket.session.schedule.time <= datetime.now().time():
+                raise Http404("Сеанс не найден")
+            ticket.user = self.request.user
+            ticket.save()
+
+        user_context = self.get_user_context(title=f"Заказ подтвержден",
+                                             menu_tab_selected=0)
+        return render(self.request, 'cinema_app/tickets_order_done.html', user_context)
