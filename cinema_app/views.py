@@ -19,7 +19,23 @@ class HomeView(DataContextMixin, ListView):
     context_object_name = "movies"
 
     def get_queryset(self):
-        movies = Movie.objects.filter(date_start__lte=datetime.now(), date_end__gte=datetime.now())
+        return Movie.objects.filter(date_start__lte=datetime.now(), date_end__gte=datetime.now())
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(HomeView, self).get_context_data(**kwargs)
+        user_context = self.get_user_context(title="Главная", menu_tab_selected=1,
+                                             movies_tabs=movies_tabs, movies_tabs_selected=1)
+        context = dict(list(context.items()) + list(user_context.items()))
+        return context
+
+
+class SearchView(DataContextMixin, ListView):
+    model = Movie
+    template_name = 'cinema_app/index.html'
+    context_object_name = "movies"
+
+    def get_queryset(self):
+        movies = Movie.objects.filter(date_end__gte=datetime.now())
         query_name = self.request.GET.get('search_name')
         query_date = self.request.GET.get('search_date')
         if query_name:
@@ -30,9 +46,9 @@ class HomeView(DataContextMixin, ListView):
         return movies
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        context = super(HomeView, self).get_context_data(**kwargs)
-        user_context = self.get_user_context(title="Главная", menu_tab_selected=1,
-                                             movies_tabs=movies_tabs, movies_tabs_selected=1)
+        context = super(SearchView, self).get_context_data(**kwargs)
+        user_context = self.get_user_context(title="Поиск", menu_tab_selected=0,
+                                             movies_tabs=movies_tabs, movies_tabs_selected=0)
         context = dict(list(context.items()) + list(user_context.items()))
         return context
 
