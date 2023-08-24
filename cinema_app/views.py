@@ -167,6 +167,9 @@ class PricesView(DataContextMixin, ListView):
     template_name = 'cinema_app/prices.html'
     context_object_name = 'prices'
 
+    def get_queryset(self):
+        return Category.objects.all().order_by('price')
+
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(PricesView, self).get_context_data(**kwargs)
         user_context = self.get_user_context(title=f"Цены", menu_tab_selected=3)
