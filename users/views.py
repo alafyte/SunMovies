@@ -1,15 +1,17 @@
 from datetime import datetime
 
+import environ
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordChangeDoneView, PasswordResetView, \
     PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage
+from django.core.mail import send_mail
 from django.contrib.auth import logout, login, get_user_model
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy, reverse
 from django.utils.encoding import force_bytes, force_str
+from django.utils.html import strip_tags
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import CreateView, UpdateView, ListView
 
@@ -22,6 +24,8 @@ from .utils import SettingsContextMixin, tickets_tabs, MessageContextMixin
 
 # Create your views here.
 User = get_user_model()
+env = environ.Env()
+env.read_env()
 
 
 def logout_view(request):
@@ -73,16 +77,17 @@ def activation_view(request, uidb64, token):
 
 def activate_email(request, user, to_email):
     mail_subject = "Активация аккаунта."
-    message = render_to_string("users/template_activate_account.html", {
+    from_email = env('EMAIL_FROM')
+    html_message = render_to_string("users/template_activate_account.html", {
         'username': user.username,
         'domain': get_current_site(request).domain,
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': account_activation_token.make_token(user),
         "protocol": 'https' if request.is_secure() else 'http'
     })
-    email = EmailMessage(mail_subject, message, to=[to_email])
+    plain_message = strip_tags(html_message)
     try:
-        return email.send()
+        return send_mail(mail_subject, plain_message, from_email, [to_email], html_message=html_message)
     except:
         return False
 

@@ -1,7 +1,7 @@
 {% autoescape off %}
-Здравствуйте {{ username|title }},
+    <h1>Здравствуйте {{ username|title }},</h1>
 
-Перейдите по ссылке ниже, чтобы завершить процедуру регистрации:
+    <p>Перейдите по ссылке ниже, чтобы завершить процедуру регистрации:</p>
 
-{{ protocol }}://{{ domain }}{% url 'activate' uidb64=uid token=token %}
+    {{ protocol }}://{{ domain }}{% url 'activate' uidb64=uid token=token %}
 {% endautoescape %}
