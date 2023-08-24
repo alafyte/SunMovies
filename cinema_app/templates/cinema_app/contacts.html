@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2 class="mt-4 text-4xl font-bold sm:text-3xl dark:text-white text-center">Контакты</h2>
+    <div class="w-full max-w-screen-xl mx-auto p-4 md:py-8">
+        <p class="mb-3 text-lg text-gray-500 dark:text-white text-justify">
+            <strong class="font-semibold text-gray-900 dark:text-white">Адрес: </strong> г. Город, ул. Городская 67
+        </p>
+        <p class="mb-3 text-lg text-gray-500 dark:text-white text-justify">
+            <strong class="font-semibold text-gray-900 dark:text-white">Email: </strong> example@example.com
+        </p>
+        <p class="mb-3 text-lg text-gray-500 dark:text-white text-justify">
+            <strong class="font-semibold text-gray-900 dark:text-white">Телефон: </strong> +123(45)-67-89-101
+        </p>
+        <p class="mb-3 text-lg text-gray-500 dark:text-white text-justify">
+            <strong class="font-semibold text-gray-900 dark:text-white">Время работы: </strong> пн-вс с 10:00-23:00
+        </p>
+        <h4 class="text-3xl font-bold dark:text-white mt-8 mb-4">Карта проезда</h4>
+        <iframe src="https://yandex.ru/map-widget/v1/?um=constructor%3Accba74933c8a5bff7fc037edcfa24d13b39a2e46146d10cff8b849f6a564cfb1&amp;source=constructor"
+                width="100%" height="488" frameborder="0"></iframe>
+    </div>
+    {% include 'footer.html' %}
+{% endblock %}
